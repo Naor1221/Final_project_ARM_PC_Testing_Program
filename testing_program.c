@@ -31,6 +31,7 @@ struct __attribute__((packed)) answer{
     uint32_t test_id;
     uint8_t test_result;
 };
+
 void get_date_and_time(time_t *t,char *result){
     struct tm* ptr;    
     *t=time(NULL);  
@@ -57,6 +58,7 @@ void my_strcpy(uint8_t *dest,char *src){
         idx++;
     }
 }
+//create sql table
 void sql_func(int id,char* date,long time,int result){
     sqlite3 *db;
     char *errMsg = 0;
@@ -149,52 +151,5 @@ int main(void) {
     m1.mess_len=my_strlen(m1.message);
     m1.itr=3;
     send_struct(&m1);
-
-    // char date[30]={0};
-    // time_t test_length=0;
-
-    // int sock=socket(AF_INET, SOCK_DGRAM | SOCK_NONBLOCK, 0);
-
-    // if (sock < 0) {
-    //     printf("Error creating socket\n");
-    //     return 1;
-    // }
-    // stm32_addr.sin_family=AF_INET;
-    // stm32_addr.sin_port=htons(SERVER_PORT);
-    // stm32_addr.sin_addr.s_addr=inet_addr("12.34.56.78");
-
-    
-    // ssize_t bytes_sent=sendto(sock,&m1,sizeof(m1),0,(struct sockaddr*)&stm32_addr,sizeof(stm32_addr));
-
-    // if(bytes_sent<0){
-    //     // printf("Data was not sent\n");
-    //     perror("Data was not sent\n");
-    // }
-    // else{
-    //     printf("Data was sent!\n");
-    //     time_t start;
-    //     get_date_and_time(&start,date);
-    //     socklen_t adder_len=sizeof(stm32_addr);
-    //     ssize_t bytes_received;
-    //     time_t cur_time=0;
-    //     //if answer is not received within 20 seconds,the sending is considered as a failure.
-    //     while( ( ((cur_time=time(NULL))-start)<=20) ){
-    //         bytes_received=recvfrom(sock,&a1,sizeof(a1),0,(struct sockaddr*)&stm32_addr,&adder_len);
-    //         if(bytes_received==BYTES_RECV_LEN){
-    //             break;
-    //         }                    
-    //     }
-        
-    //     if(bytes_received<0){
-    //         printf("Recieved failed\n");
-    //     }
-    //     else if(bytes_received==BYTES_RECV_LEN){ 
-    //         test_length=time_length(time(NULL),start);
-    //         sql_func(a1.test_id,date,test_length,a1.test_result);
-
-    //     }
-    // }
-    // close(sock);
-
     return 0;
 }
