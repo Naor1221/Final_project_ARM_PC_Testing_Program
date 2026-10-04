@@ -1,77 +1,94 @@
-PC testing program
-Project Overview:
-Program sends structure which includes: ID, priphery or pripheries to be checked, message and message length.
-The structure is transfered via UDP protocol using usb cable to the board STM32F756ZG for making tests(will be explianed in Final_project_ARM_STM32F756ZG README).
-The response from the board wiil be received up to 37 seconds, which is the time measured for maximal size of data length and iteration.
-Only in case of receiving answer it first will be saved inside another structure, including ID and test result. 
-And then the structure details will be transfered into sqlite3 data structure named "test.db". 
-This data structure includes: ID, date and time of sending structure to board, time length and result(1 is Passed and 0xff is Failed).
-That "test.db" will be printed on damaned(as will be explianed later).
-Type of arrguments: 
-In this project there was done using in uint32_t and uint8_t variables, for ensuring fixed size to be transfered indepently to compiler or proccesor. 
+ARM STM32F756ZG testing program overview:
+This program receives structure, which was sent from PC via UDP protocol through usb cable.
+The structure will include: ID, periphery or peripheries to be checked, message and message length.
+According to the bits that are ON in periphery or peripheries to be checked, test will be made:
+bit 0 - Timer test
+bit 1 - UART test
+bit 2 - SPI test
+bit 3 - I2C test
+bit 4 - ADC test
+Explanation for each test:
+Timer test:
+Checks if advance timer (timer1) counts to the same value, as general purpose(timer4) does.
+Both timers use output compare mode, and have the same ARR.
+One pulse mode is enabled, making sure every iteration each timer counts once.
+If one of the timers dont finish it's counting within 0.5 seconds, test result is fail.
+If both timers reach the same ARR as excepted, in less than 0.5 seconds, test result is success.
+timer test uses interrupts.
 
-Hardware Requirements:
-**Notice this code was developed on intel X86_64 CPU with virtual machine (Oracle virtual box), which runs linux mint Ubunto(64 bit). 
-This code was not tested on other CPU architecture. 
-Your pc should be able to have network appliction, enabling IPv4 protocol. 
-Also it's highly recommended to have enough storage, since the program saves data on sqlite3 file ("test.db") on your pc. 
+UART,SPI and I2C:
+All three have the same test, UART and SPI use DMA but I2C uses interrupts.
+for UART the test was done with uart5 and uart7 ports.
+for SPI the test was done with spi1(master) and spi4(slave) ports.
+for I2C the test was done with i2c1 and i2c4 ports.
+Test will be done as following:
+First, the message that was received from the incoming struct is transfered to one port(port0),
+then this port sends the message to the other port(port1).
+After this, the other port(port1) will send back the message to the first port(port0).
+Finally, the incoming message to the first port(port0) will be compared to the message, coming from the incoming struct.
+if message len is above 100 chars, CRC check will take place instead.
+Test result is considered as success only if the compare is true.
 
-Software Requirements:
-VSC text editor 1.106.2 version. 
-gcc compiler 13.3 version. 
-C99
-**other version were not tested. 
-It's highly recommended to use json attached files. 
+ADC test:
+Using built in temperature inside STM32F756ZG, an analog input is converted into digital value
+if the value is between 25 to 50 celcius degrees, test result is considered as success.
+finding temperature value was done with the formula in reference manual page 441,item 8.
+ADC test uses DMA, and ADC1.
 
-Installition: 
-Install VSC text editor, with gcc compiler with versions mentioned above. 
-Opening the attached directory in git on VSC, includeing json files.
-Entering the "Testing_program.c" file
-*this file already includes the required libriries for running the code. 
-Which are: 
-#include <stdio.h>
-#include <string.h> //vital for memset. 
-#include <inttypes.h>
-#include <sys/socket.h>
-#include <unistd.h>
-#include <arpa/inet.h>
-#include <netinet/in.h>
-#include <time.h>
-#include <sqlite3.h>
+Hardware requirements:
+STM32F756ZG
+USB to USB cable
+GPIO pins:
+UART:
+uart5 tx -PC12
+uart5 rx -PD2
 
-How to unistall: 
-Deleting the directory which was downloaded on Github. 
+  uart7 rx -PE7
+  uart7 tx -PE8
+ 
+SPI:
+  spi1 sck -PA5
+  spi1 miso -PA6
+  spi1 mosi -PB5
+ 
+  spi4 sck -PE2
+  spi4 miso -PE5
+  spi4 mosi -PE6
+ 
+I2C:
+  i2c1 scl -PB8
+  i2c1 sda -PB9
+  
+  i2c4 scl -PF14
+  i2c4 sda -PF15
+DMA:
+SPI1_RX DMA2 STREAM2
+SPI1_TX DMA2 STREAM3
 
-How to use: 
-For using this check program, you need first to run the code of STM32F756ZG, which is explained on Final_project_ARM_STM32F756ZG . 
-**important details: 
-The server port is 12345 
-The board gateway address is 12.34.56.1/24 
-The board IPv4 address is 12.34.56.78/24 
+UART5_RX DMA1 STREAM0
+UART5_TX DMA1 STREAM7
 
-Assuming that board code is already running:
-1)Connecting to board's network via getway address. 
-2)Openning the "Testing_program.c" on and run init_database();
-3)Create an instance of the struct "mess_to_deliver"
-4)Running the function struct_details
-5)Running the function send_struct
-Optional(if you wish to printing the "test.db" table):
-Running the function print_table
+ADC1 DMA2 STREAM4
 
+Software requirements:
+CubeIDE program.
 
+Notice, the code is separated into files, locating inside proj directory.
+for running the code, enter to Core directory -> Src directory and run the main.c file.
+
+Installation:
+Connect the board to your PC, and attach the required jumpers to the suitable GPIO's
+Connect the usb wire to PC and to the board.
+Open project directory on CubeIDE.
+
+How to uninstall: Deleting the directory which was downloaded on Github.
+
+How to use:
+For running the code, enter to Core directory -> Src directory and run the main.c file.
+Then, run the code of PC testing program(see Final_project_ARM_PC_Testing_Program for more details).
 
 Example of using:
-inside terminal: 
-sudo ip addr add 12.34.56.1/24 dev (here write your own device name).
-inside main:
-int main(void){
- init_database();
- struct mess_to_deliver m1;
- struct_details(&m1,123,15,mess,255);
- send_struct(&m1);
- print_table("table_name");
- return 0;
-}
-**Explantion of each arrgumant is found above each function inside the "testing_program.c" file .
-
-
+After code is ran, it listening to packets comming from PC.
+When packet arrives, its data is processed.
+If the packet includes periphery to be checked, suitable test or tests will take place, else no test takes place.
+Then, the result is sent back to PC via packed structure size of 5 bytes.
