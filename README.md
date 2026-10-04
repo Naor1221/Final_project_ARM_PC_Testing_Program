@@ -1,8 +1,8 @@
 PC testing program
 Project Overview:
-Program receives structure which includes: ID, priphery or pripheries to be checked, message and message length.
+Program sends structure which includes: ID, priphery or pripheries to be checked, message and message length.
 The structure is transfered via UDP protocol using usb cable to the board STM32F756ZG for making tests(will be explianed in Final_project_ARM_STM32F756ZG README).
-The response wiil be received up to 37 seconds, which is the time measured for maximal size of data length and iteration.
+The response from the board wiil be received up to 37 seconds, which is the time measured for maximal size of data length and iteration.
 Only in case of receiving answer it first will be saved inside another structure, including ID and test result. 
 And then the structure details will be transfered into sqlite3 data structure named "test.db". 
 This data structure includes: ID, date and time of sending structure to board, time length and result(1 is Passed and 0xff is Failed).
