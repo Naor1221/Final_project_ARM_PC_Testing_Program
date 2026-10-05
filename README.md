@@ -45,6 +45,7 @@ Deleting the directory which was downloaded on Github.
 
 How to use: 
 For using this check program, you need first to run the code of STM32F756ZG, which is explained on Final_project_ARM_STM32F756ZG . 
+Download all files on github and insert them into a new directory. 
 **important details: 
 The server port is 12345 
 The board gateway address is 12.34.56.1/24 
