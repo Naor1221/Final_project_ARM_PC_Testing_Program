@@ -25,7 +25,8 @@ It's highly recommended to use json attached files.
 
 Installation: 
 Install VSC text editor, with gcc compiler with versions mentioned above. 
-Opening the attached directory in git on VSC, including json files.
+Download all files on github and insert them into a new directory
+Opening the directory in git on VSC, including json files.
 Entering the "Testing_program.c" file
 *this file already includes the required libraries for running the code. 
 Which are: 
@@ -45,7 +46,6 @@ Deleting the directory which was downloaded on Github.
 
 How to use: 
 For using this check program, you need first to run the code of STM32F756ZG, which is explained on Final_project_ARM_STM32F756ZG . 
-Download all files on github and insert them into a new directory. 
 **important details: 
 The server port is 12345 
 The board gateway address is 12.34.56.1/24 
